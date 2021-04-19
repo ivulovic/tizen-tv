@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>JavaScript SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style_3.css">
+    
+	<script src="lib/babel.min.js"></script>
+    <script crossorigin src="lib/react.production.min.js"></script>
+	<script crossorigin src="lib/react-dom.production.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="js/spatial_navigation.js"></script>
+    <script src="js/util.js"></script>
+    <script>
+      $(function() {
+        // A short name of the SpatialNavigation singleton object.
+        var SN = SpatialNavigation;
+
+        // Initialize
+        SN.init();
+
+        // Add the first section "navigation".
+        SN.add({
+          id: 'navigation',
+          selector: '#navigation .focusable',
+        });
+         
+        $('.focusable')
+          .on('sn:enter-down', function() {
+            // Add "clicking" style.
+            $(this).addClass('active');
+          })
+          .on('sn:enter-up', function() {
+            var id = this.id;
+            var $this = $(this);
+
+            // Remove "clicking" style.
+            $this.removeClass('active');
+
+            // Do related actions according to the id of element.
+            if (id.substr(0, 9) == 'settings-') {
+              $this.find('i').toggleClass('fa-check');
+            } else {
+              switch(id) {
+                case 'button-settings':
+                  // Show the settings dialog
+                  $('#settings-container').removeClass('hide');
+
+                  // Move focus to section "settings-dialog"
+                  SN.focus('settings-dialog');
+                  break;
+                case 'indexPage':
+                case 'aboutPage':
+                	window.location.href=id.slice(0,-4)+".html";
+                	break;  
+                case 'button-save':
+                case 'button-cancel':
+                  // Hide the settings dialog
+                  $('#settings-container').addClass('hide');
+
+                  // Move focus back to section "upperbox".
+                  SN.focus('upperbox');
+                  break;
+              }
+            }
+
+            // For testing only.
+            console.log(id);
+          });
+ 
+
+        // Set everything with "tabindex=-1".
+        SN.makeFocusable();
+
+        // Focus section "middlebox" by default.
+        SN.focus('middlebox');
+      });
+    </script>
+  </head>
+  <body>
+    <div id="main-container" class="container">
+	 	<ul id="navigation">
+			<li id="indexPage" onclick="window.location.href='index.html'" class="link focusable"><a href="index.html">Home</a></li>
+			<li id="aboutPage" class="link focusable"><a href="about.html">About</a></li>
+			<li id="link3" class="link focusable"><a href="#">Link 3</a></li>
+			<li id="link4" class="link focusable"><a href="#">Link 4</a></li> 
+		</ul>
+	    <div id="website-content"></div>
+    </div>
+    <script type="text/babel">
+			function Page(){
+				const [d, setD] = React.useState({});
+				React.useEffect(()=>{
+					fetch('https://jsonplaceholder.typicode.com/todos/1').then(response => response.json()).then(json => setD(json))
+				},[])
+				const arr = [1,2,3,4,5,6,7,8,9,10];
+					return (
+					   <div>
+						<div>{d.id}</div>
+						<ul>{arr.map(x=> <li><a>{x} is here </a></li>)}</ul>
+                       </div>
+					)
+				} 
+				ReactDOM.render(<Page/>, document.getElementById("website-content"));
+			</script>
+  </body>
+</html>
